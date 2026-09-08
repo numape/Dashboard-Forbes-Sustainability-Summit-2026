@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App de Asistencia - Clean UI</title>
+    <title>Dashboard App - Evento</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para los gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
         tailwind.config = {
@@ -17,12 +22,12 @@
                     },
                     colors: {
                         app: {
-                            bg: '#F2F4F7',       /* Fondo gris súper claro de la ref */
-                            card: '#FFFFFF',     /* Blanco puro para tarjetas */
-                            text: '#1C1E21',     /* Casi negro para títulos */
-                            muted: '#8A92A6',    /* Gris para subtítulos e iconos */
-                            accent: '#00D8A1',   /* El celeste/verde neón de la batería */
-                            nav: '#1A1C20',      /* El botón negro del menú inferior */
+                            bg: '#F2F4F7',       
+                            card: '#FFFFFF',     
+                            text: '#1C1E21',     
+                            muted: '#8A92A6',    
+                            accent: '#00D8A1',   /* Verde/Celeste Neón */
+                            nav: '#1A1C20',      /* Negro nav */
                         }
                     },
                     boxShadow: {
@@ -34,18 +39,8 @@
         }
     </script>
     <style>
-        body { background-color: #E5E7EB; /* Fondo oscuro para destacar la app en PC */ }
-        
-        /* Oculta la barra de scroll para un look más "App" */
+        body { background-color: #E5E7EB; }
         ::-webkit-scrollbar { display: none; }
-        
-        /* Animación suave para la imagen central */
-        .float-anim { animation: float 6s ease-in-out infinite; }
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
     </style>
 </head>
 <body class="font-sans min-h-screen flex items-center justify-center text-app-text antialiased selection:bg-app-accent selection:text-white sm:p-6">
@@ -54,12 +49,11 @@
     <main class="w-full max-w-[400px] h-[100dvh] sm:h-[850px] bg-app-bg sm:rounded-[40px] relative overflow-hidden shadow-2xl flex flex-col">
         
         <!-- Contenido scrolleable de la app -->
-        <div class="flex-1 overflow-y-auto pb-28">
+        <div class="flex-1 overflow-y-auto pb-32">
             
-            <!-- 1. HEADER (Perfil y Saludo) -->
-            <header class="flex justify-between items-center px-6 pt-12 pb-4">
+            <!-- HEADER -->
+            <header class="flex justify-between items-center px-6 pt-10 pb-2">
                 <div class="flex items-center gap-4">
-                    <!-- Foto de perfil -->
                     <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm">
                         <img src="https://ui-avatars.com/api/?name=Nilton+Pelaez&background=1C1E21&color=fff" alt="Perfil" class="w-full h-full object-cover">
                     </div>
@@ -68,136 +62,275 @@
                         <h1 class="text-base font-semibold leading-tight">Nilton Peláez</h1>
                     </div>
                 </div>
-                <!-- Campana de notificaciones -->
-                <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-soft text-app-text hover:bg-gray-50 transition-colors">
-                    <i class="fa-regular fa-bell text-lg"></i>
-                </button>
             </header>
 
-            <!-- 2. HERO IMAGE (Reemplaza el auto de tu referencia) -->
+            <!-- LOGO CLIENTE (Reemplaza el icono animado 3D) -->
             <div class="px-6 py-6 flex justify-center items-center">
-                <!-- Aquí puedes poner el logo de Forbes, un ticket 3D o un código QR flotante -->
-                <div class="relative w-full max-w-[240px] aspect-[4/3] flex items-center justify-center float-anim">
-                    <!-- Placeholder visual. Reemplazar src por tu imagen PNG transparente -->
-                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/ticket-5590729-4652419.png" alt="Evento 3D" class="w-full object-contain drop-shadow-xl">
-                </div>
+                <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888337100881788833710088.png" alt="Logo Cliente" class="max-h-[70px] object-contain drop-shadow-sm">
             </div>
 
-            <!-- 3. DASHBOARD CARDS (Estilo Batería/Distancia) -->
-            <div class="px-6 grid grid-cols-2 gap-4 mb-8">
-                
-                <!-- Card 1: Check-ins (Estilo Batería) -->
-                <div class="bg-white rounded-[28px] p-5 shadow-soft">
-                    <div class="flex justify-between items-center mb-4 text-app-text">
-                        <span class="text-xs font-medium">Check-ins</span>
-                        <i class="fa-solid fa-qrcode text-app-muted"></i>
+            <!-- ========================================== -->
+            <!-- VISTA 1: HOME (Métricas) -->
+            <!-- ========================================== -->
+            <div id="view-home" class="px-6 space-y-4 view-section">
+                <!-- Total Registros (Destacado) -->
+                <div class="bg-white rounded-[28px] p-6 shadow-soft flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-medium text-app-muted">Total Registrados</span>
+                        <h2 id="metric-total" class="text-5xl font-bold mt-1 text-app-text">0</h2>
                     </div>
-                    <h2 class="text-4xl font-bold mb-1">85</h2>
-                    <!-- Barra de progreso -->
-                    <div class="flex items-center gap-2 mt-2">
-                        <span class="text-[10px] text-app-muted">Progreso</span>
-                        <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-app-accent w-[60%] rounded-full"></div>
+                    <div class="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center text-app-muted">
+                        <i class="fa-solid fa-users text-xl"></i>
+                    </div>
+                </div>
+
+                <!-- Check-ins y Pendientes -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white rounded-[28px] p-5 shadow-soft">
+                        <div class="flex justify-between items-center mb-4 text-app-text">
+                            <span class="text-xs font-medium">Check-ins</span>
+                            <i class="fa-solid fa-qrcode text-app-accent"></i>
+                        </div>
+                        <h2 id="metric-checkins" class="text-4xl font-bold mb-1">0</h2>
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div id="progress-bar" class="h-full bg-app-accent w-[0%] rounded-full transition-all duration-500"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Card 2: Pendientes (Estilo Distancia) -->
-                <div class="bg-white rounded-[28px] p-5 shadow-soft">
-                    <div class="flex justify-between items-center mb-4 text-app-text">
-                        <span class="text-xs font-medium">Pendientes</span>
-                        <i class="fa-regular fa-clock text-app-muted"></i>
+                    <div class="bg-white rounded-[28px] p-5 shadow-soft">
+                        <div class="flex justify-between items-center mb-4 text-app-text">
+                            <span class="text-xs font-medium">Pendientes</span>
+                            <i class="fa-regular fa-clock text-app-muted"></i>
+                        </div>
+                        <h2 id="metric-pendientes" class="text-4xl font-bold mb-1">0</h2>
+                        <p class="text-[10px] text-app-muted mt-2">Faltan por llegar</p>
                     </div>
-                    <h2 class="text-4xl font-bold mb-1">57</h2>
-                    <p class="text-[10px] text-app-muted mt-2">Faltan por llegar</p>
                 </div>
             </div>
 
-            <!-- 4. LISTA DE INVITADOS (Adaptada al nuevo estilo UI) -->
-            <div class="px-6">
+            <!-- ========================================== -->
+            <!-- VISTA 2: LISTA DE INVITADOS -->
+            <!-- ========================================== -->
+            <div id="view-list" class="px-6 hidden view-section">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-lg">Lista de Invitados</h3>
-                    <span class="text-xs font-medium text-app-muted bg-white px-3 py-1 rounded-full shadow-sm">142 Total</span>
+                    <h3 class="font-semibold text-xl">Lista de Invitados</h3>
+                    <span id="badge-total" class="text-xs font-medium text-app-muted bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100">0 Total</span>
                 </div>
 
-                <!-- Buscador Clean -->
+                <!-- Buscador -->
                 <div class="relative mb-6">
                     <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-app-muted text-sm"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar por nombre..." class="w-full bg-white rounded-2xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-app-accent shadow-soft transition-all placeholder:text-gray-400">
+                    <input type="text" id="searchInput" placeholder="Buscar por nombre..." class="w-full bg-white rounded-2xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-app-accent shadow-soft transition-all placeholder:text-gray-400 border border-transparent focus:border-app-accent/20">
                 </div>
 
-                <!-- Items de la lista -->
+                <!-- Contenedor dinámico de la lista -->
                 <div class="space-y-3" id="guestList">
-                    <!-- Invitado 1 -->
-                    <div class="bg-white p-3 rounded-2xl flex items-center justify-between shadow-soft guest-item">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-app-accent/10 flex items-center justify-center text-app-accent font-bold text-sm">
-                                CR
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-app-text">Carlos Romero</p>
-                                <p class="text-[10px] text-app-muted">TechCorp • Pendiente</p>
-                            </div>
-                        </div>
-                        <!-- Botón de acción minimalista -->
-                        <button class="w-8 h-8 rounded-full bg-app-bg text-app-text flex items-center justify-center hover:bg-app-accent hover:text-white transition-colors">
-                            <i class="fa-solid fa-chevron-right text-xs"></i>
-                        </button>
-                    </div>
+                    <!-- Los invitados se inyectarán aquí vía JS -->
+                </div>
+            </div>
 
-                    <!-- Invitado 2 (Ya asistió) -->
-                    <div class="bg-white p-3 rounded-2xl flex items-center justify-between shadow-soft guest-item opacity-60">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-sm">
-                                MG
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-app-text line-through">María García</p>
-                                <p class="text-[10px] text-app-muted">Sustain PE • Asistió</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-check-circle text-app-accent"></i>
+            <!-- ========================================== -->
+            <!-- VISTA 3: GRÁFICO DE PICOS -->
+            <!-- ========================================== -->
+            <div id="view-chart" class="px-6 hidden view-section">
+                <h3 class="font-semibold text-xl mb-4">Picos de Asistencia</h3>
+                
+                <div class="bg-white rounded-[28px] p-5 shadow-soft">
+                    <p class="text-xs font-medium text-app-muted mb-4">Check-ins por hora</p>
+                    <div class="relative h-[250px] w-full">
+                        <canvas id="attendanceChart"></canvas>
                     </div>
                 </div>
             </div>
+
+            <!-- FOOTER LOGO -->
+            <div class="px-6 pt-12 pb-6 flex justify-center items-center mt-auto">
+                <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888337764111788833776411.png" alt="Footer Logo" class="max-h-[35px] opacity-60 object-contain">
+            </div>
+
         </div>
 
-        <!-- 5. BOTTOM NAVIGATION BAR (Exactamente igual a la referencia) -->
+        <!-- ========================================== -->
+        <!-- BOTTOM NAVIGATION BAR (3 BOTONES) -->
+        <!-- ========================================== -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] bg-white rounded-[2rem] p-2 flex justify-between items-center shadow-nav z-50">
-            <!-- Botón Activo (Negro con ícono verde) -->
-            <button class="w-[72px] h-[60px] bg-app-nav rounded-[1.5rem] flex items-center justify-center">
-                <i class="fa-solid fa-house text-app-accent text-xl"></i>
+            <!-- Botón 1: Home -->
+            <button onclick="switchTab('home', this)" class="nav-btn w-[32%] h-[60px] bg-app-nav rounded-[1.5rem] flex items-center justify-center text-app-accent transition-all duration-300">
+                <i class="fa-solid fa-house text-xl"></i>
             </button>
             
-            <!-- Botones inactivos (Íconos de línea negros/grises) -->
-            <button class="flex-1 h-[60px] flex items-center justify-center text-app-text hover:text-app-accent transition-colors">
-                <i class="fa-solid fa-expand text-xl"></i> <!-- Escanear -->
+            <!-- Botón 2: Lista -->
+            <button onclick="switchTab('list', this)" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300">
+                <i class="fa-regular fa-address-book text-xl"></i>
             </button>
             
-            <button class="flex-1 h-[60px] flex items-center justify-center text-app-text hover:text-app-accent transition-colors">
-                <i class="fa-regular fa-address-book text-xl"></i> <!-- Lista completa -->
-            </button>
-            
-            <button class="flex-1 h-[60px] flex items-center justify-center text-app-text hover:text-app-accent transition-colors">
-                <i class="fa-solid fa-gear text-xl"></i> <!-- Ajustes -->
+            <!-- Botón 3: Gráfico -->
+            <button onclick="switchTab('chart', this)" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300">
+                <i class="fa-solid fa-chart-simple text-xl"></i>
             </button>
         </div>
 
     </main>
 
-    <!-- Script de búsqueda simple adaptado -->
+    <!-- SCRIPT DE LÓGICA, API Y NAVEGACIÓN -->
     <script>
+        // 1. SISTEMA DE PESTAÑAS (TABS)
+        function switchTab(viewName, buttonElement) {
+            // Ocultar todas las vistas
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            // Mostrar la vista seleccionada
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+
+            // Resetear estilos de todos los botones
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-app-nav', 'text-app-accent');
+                btn.classList.add('text-app-muted');
+            });
+
+            // Aplicar estilo activo (fondo negro, icono acento) al botón clicado
+            buttonElement.classList.remove('text-app-muted', 'hover:text-app-text');
+            buttonElement.classList.add('bg-app-nav', 'text-app-accent');
+        }
+
+        // 2. CONFIGURACIÓN DEL GRÁFICO (Chart.js)
+        let attendanceChart;
+        function renderizarGrafico() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            
+            // Si el gráfico ya existe, lo destruimos para actualizarlo
+            if(attendanceChart) attendanceChart.destroy();
+
+            attendanceChart = new Chart(ctx, {
+                type: 'bar', // Tipo de gráfico de picos
+                data: {
+                    labels: ['13:00', '14:00', '15:00', '16:00', '17:00'],
+                    datasets: [{
+                        label: 'Registros',
+                        // Estos datos pueden ser dinámicos desde tu API luego
+                        data: [12, 45, 18, 5, 5], 
+                        backgroundColor: '#00D8A1',
+                        borderRadius: 6,
+                        barThickness: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false, drawBorder: false }, ticks: { display: false } },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 10, family: 'Plus Jakarta Sans' }, color: '#8A92A6' } }
+                    }
+                }
+            });
+        }
+
+        // 3. INTEGRACIÓN CON API (Simulada para Vercel)
         document.addEventListener("DOMContentLoaded", function() {
             const searchInput = document.getElementById("searchInput");
-            const items = document.getElementsByClassName("guest-item");
+            const guestList = document.getElementById("guestList");
+            
+            // Inicializar gráfico vacío o con datos base
+            renderizarGrafico();
 
+            function renderizarDashboard(invitados) {
+                const total = invitados.length;
+                const checkins = invitados.filter(i => i.estado.toLowerCase().includes('asisti') || i.estado.toLowerCase().includes('check')).length;
+                const pendientes = total - checkins;
+                const porcentaje = total > 0 ? (checkins / total) * 100 : 0;
+
+                // Actualizar métricas Home
+                document.getElementById('metric-total').innerText = total;
+                document.getElementById('metric-checkins').innerText = checkins;
+                document.getElementById('metric-pendientes').innerText = pendientes;
+                document.getElementById('progress-bar').style.width = `${porcentaje}%`;
+                
+                // Actualizar número en pestaña lista
+                document.getElementById('badge-total').innerText = `${total} Total`;
+
+                // Construir lista de invitados
+                let htmlLista = '';
+                invitados.forEach(inv => {
+                    const esAsistio = inv.estado.toLowerCase().includes('asisti');
+                    
+                    // Iniciales (ej: Carlos Romero -> CR)
+                    const iniciales = inv.nombre.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+
+                    if(esAsistio) {
+                        // Estilo Asistió (Gris claro, tachado, check verde)
+                        htmlLista += `
+                        <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item opacity-70">
+                            <div class="flex items-center gap-4">
+                                <div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-sm">
+                                    ${iniciales}
+                                </div>
+                                <div>
+                                    <p class="text-[15px] font-semibold text-app-text line-through">${inv.nombre}</p>
+                                    <p class="text-xs text-app-muted mt-0.5">${inv.empresa || '-'} • Asistió</p>
+                                </div>
+                            </div>
+                            <div class="w-7 h-7 rounded-full bg-app-accent flex items-center justify-center text-white">
+                                <i class="fa-solid fa-check text-[10px]"></i>
+                            </div>
+                        </div>`;
+                    } else {
+                        // Estilo Pendiente (Activo, flecha)
+                        htmlLista += `
+                        <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-11 h-11 rounded-full bg-app-accent/10 flex items-center justify-center text-app-accent font-bold text-sm">
+                                    ${iniciales}
+                                </div>
+                                <div>
+                                    <p class="text-[15px] font-semibold text-app-text">${inv.nombre}</p>
+                                    <p class="text-xs text-app-muted mt-0.5">${inv.empresa || '-'} • Pendiente</p>
+                                </div>
+                            </div>
+                            <button class="w-8 h-8 rounded-full bg-app-bg text-app-text flex items-center justify-center hover:bg-app-accent hover:text-white transition-colors">
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>`;
+                    }
+                });
+
+                guestList.innerHTML = htmlLista;
+            }
+
+            // 4. LÓGICA DE BÚSQUEDA EN LISTA
             searchInput.addEventListener("keyup", function(event) {
                 const query = event.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const items = document.getElementsByClassName("guest-item");
+
                 for (let i = 0; i < items.length; i++) {
                     const text = items[i].textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     items[i].style.display = text.includes(query) ? "flex" : "none";
                 }
             });
+
+            // 5. FUNCIÓN FETCH PARA VERCEL/API
+            async function obtenerDatos() {
+                try {
+                    // MOCK DE DATOS (Para que veas el diseño funcionando antes de conectarlo a tu backend)
+                    // En producción, reemplaza la siguiente línea por: const respuesta = await fetch('/api/invitados'); const data = await respuesta.json();
+                    const data = [
+                        { nombre: "Carlos Romero", empresa: "TechCorp", estado: "Pendiente" },
+                        { nombre: "María García", empresa: "Sustain PE", estado: "Asistió" },
+                        { nombre: "Juan Pérez", empresa: "Innovate SAC", estado: "Pendiente" },
+                        { nombre: "Ana López", empresa: "StartUp", estado: "Asistió" }
+                    ];
+                    
+                    renderizarDashboard(data);
+                    searchInput.dispatchEvent(new Event('keyup')); // Refrescar filtro
+                } catch (error) {
+                    console.error("Error cargando datos:", error);
+                }
+            }
+
+            // Iniciar consumo
+            obtenerDatos();
+            // setInterval(obtenerDatos, 5000); // Descomentar en producción para refresco cada 5s
         });
     </script>
 </body>
