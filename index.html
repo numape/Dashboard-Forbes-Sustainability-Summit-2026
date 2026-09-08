@@ -4,79 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Registro Forbes</title>
-    <!-- Favicon PNG -->
-<link rel="icon" type="image/png" href="favicon.png">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js para los gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], },
                     colors: {
-                        app: {
-                            bg: '#F2F4F7',       
-                            card: '#FFFFFF',     
-                            text: '#1C1E21',     
-                            muted: '#8A92A6',    
-                            accent: '#00D8A1',   
-                            nav: '#1A1C20',      
-                        }
+                        app: { bg: '#F2F4F7', card: '#FFFFFF', text: '#1C1E21', muted: '#8A92A6', accent: '#00D8A1', nav: '#1A1C20', }
                     },
-                    boxShadow: {
-                        'soft': '0 10px 40px -10px rgba(0,0,0,0.04)',
-                        'nav': '0 20px 40px rgba(0,0,0,0.06)',
-                    }
+                    boxShadow: { 'soft': '0 10px 40px -10px rgba(0,0,0,0.04)', 'nav': '0 20px 40px rgba(0,0,0,0.06)', }
                 }
             }
         }
     </script>
-    <style>
-        body { background-color: #E5E7EB; }
-        ::-webkit-scrollbar { display: none; }
-    </style>
+    <style> body { background-color: #E5E7EB; } ::-webkit-scrollbar { display: none; } </style>
 </head>
 <body class="font-sans min-h-screen flex items-center justify-center text-app-text antialiased selection:bg-app-accent selection:text-white sm:p-6">
 
-    <!-- CONTENEDOR TIPO APP MÓVIL -->
     <main class="w-full max-w-[400px] h-[100dvh] sm:h-[850px] bg-app-bg sm:rounded-[40px] relative overflow-hidden shadow-2xl flex flex-col">
-        
-        <!-- Contenido scrolleable de la app -->
         <div class="flex-1 overflow-y-auto pb-32">
-            
             <!-- HEADER -->
             <header class="flex justify-between items-center px-6 pt-10 pb-2">
                 <div class="flex items-center gap-4">
-                    <!-- LOGO CLIENTE AVATAR -->
                     <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-black flex items-center justify-center p-2">
                         <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888337100881788833710088.png" alt="Logo Cliente" class="w-full h-full object-contain">
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-app-muted mb-0.5">Registro y Acreditación</p>
-                        <h1 class="text-base font-semibold leading-tight">Forbes Sustainability Summit 2026</h1>
+                        <p class="text-xs font-medium text-app-muted mb-0.5">Buenos días 👋</p>
+                        <h1 class="text-base font-semibold leading-tight">Nilton Peláez</h1>
                     </div>
                 </div>
             </header>
 
-            <!-- LOGO PRINCIPAL -->
             <div class="px-6 py-6 flex justify-center items-center">
                 <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888342198721788834219871.jpg" alt="Logo Principal Evento" class="w-full max-h-[150px] object-cover rounded-2xl shadow-soft">
             </div>
 
-            <!-- ========================================== -->
-            <!-- VISTA 1: HOME (Métricas) -->
-            <!-- ========================================== -->
+            <!-- VISTA 1: HOME -->
             <div id="view-home" class="px-6 space-y-4 view-section">
-                <!-- Total Registros -->
                 <div class="bg-white rounded-[28px] p-6 shadow-soft flex items-center justify-between">
                     <div>
                         <span class="text-xs font-medium text-app-muted">Total Registrados</span>
@@ -87,11 +57,10 @@
                     </div>
                 </div>
 
-                <!-- Asistentes Check-in y Pendientes -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-white rounded-[28px] p-5 shadow-soft">
                         <div class="flex justify-between items-center mb-4 text-app-text">
-                            <span class="text-xs font-medium">Asistentes</span>
+                            <span class="text-xs font-medium">Check-ins</span>
                             <i class="fa-solid fa-qrcode text-app-accent"></i>
                         </div>
                         <h2 id="metric-checkins" class="text-4xl font-bold mb-1">0</h2>
@@ -113,31 +82,22 @@
                 </div>
             </div>
 
-            <!-- ========================================== -->
-            <!-- VISTA 2: LISTA DE INVITADOS -->
-            <!-- ========================================== -->
+            <!-- VISTA 2: LISTA -->
             <div id="view-list" class="px-6 hidden view-section">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-semibold text-xl">Lista de Invitados</h3>
                     <span id="badge-total" class="text-xs font-medium text-app-muted bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100">0 Total</span>
                 </div>
-
-                <!-- Buscador -->
                 <div class="relative mb-6">
                     <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-app-muted text-sm"></i>
                     <input type="text" id="searchInput" placeholder="Buscar por nombre..." class="w-full bg-white rounded-2xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-app-accent shadow-soft transition-all placeholder:text-gray-400 border border-transparent focus:border-app-accent/20">
                 </div>
-
-                <!-- Contenedor dinámico de la lista -->
                 <div class="space-y-3" id="guestList"></div>
             </div>
 
-            <!-- ========================================== -->
-            <!-- VISTA 3: GRÁFICO DE PICOS -->
-            <!-- ========================================== -->
+            <!-- VISTA 3: GRÁFICO DINÁMICO -->
             <div id="view-chart" class="px-6 hidden view-section">
                 <h3 class="font-semibold text-xl mb-4">Picos de Asistencia</h3>
-                
                 <div class="bg-white rounded-[28px] p-5 shadow-soft">
                     <p class="text-xs font-medium text-app-muted mb-4">Check-ins por hora</p>
                     <div class="relative h-[250px] w-full">
@@ -146,89 +106,66 @@
                 </div>
             </div>
 
-            <!-- FOOTER LOGO -->
             <div class="px-6 pt-12 pb-6 flex justify-center items-center mt-auto">
                 <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888337764111788833776411.png" alt="Footer Logo" class="max-h-[35px] opacity-60 object-contain">
             </div>
-
         </div>
 
-        <!-- ========================================== -->
-        <!-- BOTTOM NAVIGATION BAR (3 BOTONES) -->
-        <!-- ========================================== -->
+        <!-- NAV BAR -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] bg-white rounded-[2rem] p-2 flex justify-between items-center shadow-nav z-50">
-            <!-- Botón 1: Home -->
-            <button onclick="switchTab('home', this)" class="nav-btn w-[32%] h-[60px] bg-app-nav rounded-[1.5rem] flex items-center justify-center text-app-accent transition-all duration-300">
-                <i class="fa-solid fa-house text-xl"></i>
-            </button>
-            
-            <!-- Botón 2: Lista -->
-            <button onclick="switchTab('list', this)" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300">
-                <i class="fa-regular fa-address-book text-xl"></i>
-            </button>
-            
-            <!-- Botón 3: Gráfico -->
-            <button onclick="switchTab('chart', this)" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300">
-                <i class="fa-solid fa-chart-simple text-xl"></i>
-            </button>
+            <button onclick="switchTab('home', this)" class="nav-btn w-[32%] h-[60px] bg-app-nav rounded-[1.5rem] flex items-center justify-center text-app-accent transition-all duration-300"><i class="fa-solid fa-house text-xl"></i></button>
+            <button onclick="switchTab('list', this)" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300"><i class="fa-regular fa-address-book text-xl"></i></button>
+            <button onclick="switchTab('chart', this)" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300"><i class="fa-solid fa-chart-simple text-xl"></i></button>
         </div>
-
     </main>
 
-    <!-- SCRIPT DE LÓGICA Y API -->
     <script>
         function switchTab(viewName, buttonElement) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById('view-' + viewName).classList.remove('hidden');
-
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-app-nav', 'text-app-accent');
                 btn.classList.add('text-app-muted');
             });
-
             buttonElement.classList.remove('text-app-muted', 'hover:text-app-text');
             buttonElement.classList.add('bg-app-nav', 'text-app-accent');
         }
 
+        // GRÁFICO DINÁMICO (Inicia Vacío)
         let attendanceChart;
-        function renderizarGrafico() {
+        function inicializarGrafico() {
             const ctx = document.getElementById('attendanceChart').getContext('2d');
-            if(attendanceChart) attendanceChart.destroy();
-
             attendanceChart = new Chart(ctx, {
                 type: 'bar', 
-                data: {
-                    labels: ['13:00', '14:00', '15:00', '16:00', '17:00'],
-                    datasets: [{
-                        label: 'Registros',
-                        data: [12, 45, 18, 5, 5], 
-                        backgroundColor: '#013A27',
-                        borderRadius: 6,
-                        barThickness: 12
-                    }]
-                },
+                data: { labels: [], datasets: [{ label: 'Registros', data: [], backgroundColor: '#00D8A1', borderRadius: 6, barThickness: 12 }] },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, grid: { display: false, drawBorder: false }, ticks: { display: false } },
+                        y: { beginAtZero: true, grid: { display: false, drawBorder: false }, ticks: { display: false, stepSize: 1 } },
                         x: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 10, family: 'Plus Jakarta Sans' }, color: '#8A92A6' } }
                     }
                 }
             });
         }
 
+        // Función para inyectar datos reales al gráfico
+        function actualizarGrafico(labels, data) {
+            if(attendanceChart) {
+                attendanceChart.data.labels = labels;
+                attendanceChart.data.datasets[0].data = data;
+                attendanceChart.update();
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             const searchInput = document.getElementById("searchInput");
             const guestList = document.getElementById("guestList");
             
-            renderizarGrafico();
+            inicializarGrafico();
 
             function renderizarDashboard(invitados) {
                 const total = invitados.length;
-                // Prevenimos errores si el estado viene vacío
-                const checkins = invitados.filter(i => i.estado && (i.estado.toLowerCase().includes('asisti') || i.estado.toLowerCase().includes('check'))).length;
+                const checkins = invitados.filter(i => i.estado && i.estado.toLowerCase().includes('asisti')).length;
                 const pendientes = total - checkins;
                 const porcentaje = total > 0 ? (checkins / total) * 100 : 0;
 
@@ -239,63 +176,62 @@
                 document.getElementById('badge-total').innerText = `${total} Total`;
 
                 let htmlLista = '';
+                const picosPorHora = {}; // Objeto para contar registros por hora
+
                 invitados.forEach(inv => {
                     const estadoStr = inv.estado || '';
                     const esAsistio = estadoStr.toLowerCase().includes('asisti');
-                    
-                    // Aseguramos que nombre y apellido existan y los concatenamos
-                    const nombreStr = inv.nombre ? inv.nombre.toString().trim() : '';
-                    const apellidoStr = inv.apellido ? inv.apellido.toString().trim() : '';
-                    const nombreCompleto = `${nombreStr} ${apellidoStr}`.trim() || 'Desconocido';
-                    
-                    // Extraemos las iniciales reales
-                    let iniciales = '';
-                    if (nombreStr) iniciales += nombreStr[0];
-                    if (apellidoStr) iniciales += apellidoStr[0];
-                    iniciales = iniciales.toUpperCase().substring(0, 2) || 'NA';
+                    const nombreCompleto = `${inv.nombre || ''} ${inv.apellido || ''}`.trim() || 'Desconocido';
+                    let iniciales = ((inv.nombre?.[0] || '') + (inv.apellido?.[0] || '')).toUpperCase() || 'NA';
 
                     if(esAsistio) {
+                        // Capturamos el timestamp para el gráfico
+                        if(inv.timestamp) {
+                            const fechaObj = new Date(inv.timestamp);
+                            if(!isNaN(fechaObj)) {
+                                const hora = fechaObj.getHours().toString().padStart(2, '0');
+                                const etiquetaHora = `${hora}:00`;
+                                picosPorHora[etiquetaHora] = (picosPorHora[etiquetaHora] || 0) + 1;
+                            }
+                        }
+
                         htmlLista += `
                         <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item opacity-70">
                             <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-sm">
-                                    ${iniciales}
-                                </div>
+                                <div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-sm">${iniciales}</div>
                                 <div>
                                     <p class="text-[15px] font-semibold text-app-text line-through">${nombreCompleto}</p>
                                     <p class="text-xs text-app-muted mt-0.5">${inv.empresa || '-'} • Asistió</p>
                                 </div>
                             </div>
-                            <div class="w-7 h-7 rounded-full bg-app-accent flex items-center justify-center text-white">
-                                <i class="fa-solid fa-check text-[10px]"></i>
-                            </div>
+                            <div class="w-7 h-7 rounded-full bg-app-accent flex items-center justify-center text-white"><i class="fa-solid fa-check text-[10px]"></i></div>
                         </div>`;
                     } else {
                         htmlLista += `
                         <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item cursor-pointer hover:bg-gray-50 transition-colors">
                             <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 rounded-full bg-app-accent/10 flex items-center justify-center text-app-accent font-bold text-sm">
-                                    ${iniciales}
-                                </div>
+                                <div class="w-11 h-11 rounded-full bg-app-accent/10 flex items-center justify-center text-app-accent font-bold text-sm">${iniciales}</div>
                                 <div>
                                     <p class="text-[15px] font-semibold text-app-text">${nombreCompleto}</p>
                                     <p class="text-xs text-app-muted mt-0.5">${inv.empresa || '-'} • Pendiente</p>
                                 </div>
                             </div>
-                            <button class="w-8 h-8 rounded-full bg-app-bg text-app-text flex items-center justify-center hover:bg-app-accent hover:text-white transition-colors">
-                                <i class="fa-solid fa-chevron-right text-xs"></i>
-                            </button>
+                            <button class="w-8 h-8 rounded-full bg-app-bg text-app-text flex items-center justify-center hover:bg-app-accent hover:text-white transition-colors"><i class="fa-solid fa-chevron-right text-xs"></i></button>
                         </div>`;
                     }
                 });
 
                 guestList.innerHTML = htmlLista;
+
+                // Ordenamos las horas y pasamos los datos al gráfico
+                const labelsOrdenados = Object.keys(picosPorHora).sort();
+                const datosOrdenados = labelsOrdenados.map(hora => picosPorHora[hora]);
+                actualizarGrafico(labelsOrdenados, datosOrdenados);
             }
 
             searchInput.addEventListener("keyup", function(event) {
                 const query = event.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 const items = document.getElementsByClassName("guest-item");
-
                 for (let i = 0; i < items.length; i++) {
                     const text = items[i].textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     items[i].style.display = text.includes(query) ? "flex" : "none";
@@ -304,10 +240,8 @@
 
             async function obtenerDatos() {
                 try {
-                    // API de Vercel
                     const respuesta = await fetch('/api/invitados');
                     const data = await respuesta.json();
-                    
                     renderizarDashboard(data);
                     searchInput.dispatchEvent(new Event('keyup')); 
                 } catch (error) {
