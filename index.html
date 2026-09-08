@@ -26,8 +26,8 @@
                             card: '#FFFFFF',     
                             text: '#1C1E21',     
                             muted: '#8A92A6',    
-                            accent: '#0B4B26',   /* Verde/Celeste Neón */
-                            nav: '#1A1C20',      /* Negro nav */
+                            accent: '#094B27',   
+                            nav: '#1A1C20',      
                         }
                     },
                     boxShadow: {
@@ -54,7 +54,7 @@
             <!-- HEADER -->
             <header class="flex justify-between items-center px-6 pt-10 pb-2">
                 <div class="flex items-center gap-4">
-                    <!-- LOGO ANTERIOR COMO AVATAR REDONDEADO CON FONDO NEGRO -->
+                    <!-- LOGO CLIENTE AVATAR -->
                     <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-black flex items-center justify-center p-2">
                         <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888337100881788833710088.png" alt="Logo Cliente" class="w-full h-full object-contain">
                     </div>
@@ -65,7 +65,7 @@
                 </div>
             </header>
 
-            <!-- LOGO PRINCIPAL (Doble tamaño) -->
+            <!-- LOGO PRINCIPAL -->
             <div class="px-6 py-6 flex justify-center items-center">
                 <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888342198721788834219871.jpg" alt="Logo Principal Evento" class="w-full max-h-[150px] object-cover rounded-2xl shadow-soft">
             </div>
@@ -74,7 +74,7 @@
             <!-- VISTA 1: HOME (Métricas) -->
             <!-- ========================================== -->
             <div id="view-home" class="px-6 space-y-4 view-section">
-                <!-- Total Registros (Destacado) -->
+                <!-- Total Registros -->
                 <div class="bg-white rounded-[28px] p-6 shadow-soft flex items-center justify-between">
                     <div>
                         <span class="text-xs font-medium text-app-muted">Total Registrados</span>
@@ -127,9 +127,7 @@
                 </div>
 
                 <!-- Contenedor dinámico de la lista -->
-                <div class="space-y-3" id="guestList">
-                    <!-- Los invitados se inyectarán aquí vía JS -->
-                </div>
+                <div class="space-y-3" id="guestList"></div>
             </div>
 
             <!-- ========================================== -->
@@ -175,9 +173,8 @@
 
     </main>
 
-    <!-- SCRIPT DE LÓGICA, API Y NAVEGACIÓN -->
+    <!-- SCRIPT DE LÓGICA Y API -->
     <script>
-        // 1. SISTEMA DE PESTAÑAS (TABS)
         function switchTab(viewName, buttonElement) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById('view-' + viewName).classList.remove('hidden');
@@ -191,7 +188,6 @@
             buttonElement.classList.add('bg-app-nav', 'text-app-accent');
         }
 
-        // 2. CONFIGURACIÓN DEL GRÁFICO (Chart.js)
         let attendanceChart;
         function renderizarGrafico() {
             const ctx = document.getElementById('attendanceChart').getContext('2d');
@@ -204,7 +200,7 @@
                     datasets: [{
                         label: 'Registros',
                         data: [12, 45, 18, 5, 5], 
-                        backgroundColor: '#0B4B26',
+                        backgroundColor: '#00D8A1',
                         borderRadius: 6,
                         barThickness: 12
                     }]
@@ -221,7 +217,6 @@
             });
         }
 
-        // 3. INTEGRACIÓN CON API
         document.addEventListener("DOMContentLoaded", function() {
             const searchInput = document.getElementById("searchInput");
             const guestList = document.getElementById("guestList");
@@ -230,7 +225,8 @@
 
             function renderizarDashboard(invitados) {
                 const total = invitados.length;
-                const checkins = invitados.filter(i => i.estado.toLowerCase().includes('asisti') || i.estado.toLowerCase().includes('check')).length;
+                // Prevenimos errores si el estado viene vacío
+                const checkins = invitados.filter(i => i.estado && (i.estado.toLowerCase().includes('asisti') || i.estado.toLowerCase().includes('check'))).length;
                 const pendientes = total - checkins;
                 const porcentaje = total > 0 ? (checkins / total) * 100 : 0;
 
@@ -238,13 +234,23 @@
                 document.getElementById('metric-checkins').innerText = checkins;
                 document.getElementById('metric-pendientes').innerText = pendientes;
                 document.getElementById('progress-bar').style.width = `${porcentaje}%`;
-                
                 document.getElementById('badge-total').innerText = `${total} Total`;
 
                 let htmlLista = '';
                 invitados.forEach(inv => {
-                    const esAsistio = inv.estado.toLowerCase().includes('asisti');
-                    const iniciales = inv.nombre.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                    const estadoStr = inv.estado || '';
+                    const esAsistio = estadoStr.toLowerCase().includes('asisti');
+                    
+                    // Aseguramos que nombre y apellido existan y los concatenamos
+                    const nombreStr = inv.nombre ? inv.nombre.toString().trim() : '';
+                    const apellidoStr = inv.apellido ? inv.apellido.toString().trim() : '';
+                    const nombreCompleto = `${nombreStr} ${apellidoStr}`.trim() || 'Desconocido';
+                    
+                    // Extraemos las iniciales reales
+                    let iniciales = '';
+                    if (nombreStr) iniciales += nombreStr[0];
+                    if (apellidoStr) iniciales += apellidoStr[0];
+                    iniciales = iniciales.toUpperCase().substring(0, 2) || 'NA';
 
                     if(esAsistio) {
                         htmlLista += `
@@ -254,7 +260,7 @@
                                     ${iniciales}
                                 </div>
                                 <div>
-                                    <p class="text-[15px] font-semibold text-app-text line-through">${inv.nombre}</p>
+                                    <p class="text-[15px] font-semibold text-app-text line-through">${nombreCompleto}</p>
                                     <p class="text-xs text-app-muted mt-0.5">${inv.empresa || '-'} • Asistió</p>
                                 </div>
                             </div>
@@ -270,7 +276,7 @@
                                     ${iniciales}
                                 </div>
                                 <div>
-                                    <p class="text-[15px] font-semibold text-app-text">${inv.nombre}</p>
+                                    <p class="text-[15px] font-semibold text-app-text">${nombreCompleto}</p>
                                     <p class="text-xs text-app-muted mt-0.5">${inv.empresa || '-'} • Pendiente</p>
                                 </div>
                             </div>
@@ -284,7 +290,6 @@
                 guestList.innerHTML = htmlLista;
             }
 
-            // 4. BÚSQUEDA EN LISTA
             searchInput.addEventListener("keyup", function(event) {
                 const query = event.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 const items = document.getElementsByClassName("guest-item");
@@ -295,15 +300,11 @@
                 }
             });
 
-            // 5. OBTENER DATOS (Mock API)
             async function obtenerDatos() {
                 try {
-                    const data = [
-                        { nombre: "Carlos Romero", empresa: "TechCorp", estado: "Pendiente" },
-                        { nombre: "María García", empresa: "Sustain PE", estado: "Asistió" },
-                        { nombre: "Juan Pérez", empresa: "Innovate SAC", estado: "Pendiente" },
-                        { nombre: "Ana López", empresa: "StartUp", estado: "Asistió" }
-                    ];
+                    // API de Vercel
+                    const respuesta = await fetch('/api/invitados');
+                    const data = await respuesta.json();
                     
                     renderizarDashboard(data);
                     searchInput.dispatchEvent(new Event('keyup')); 
@@ -313,6 +314,7 @@
             }
 
             obtenerDatos();
+            setInterval(obtenerDatos, 5000); 
         });
     </script>
 </body>
