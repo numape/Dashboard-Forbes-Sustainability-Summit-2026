@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Asistencia</title>
-    <!-- Tailwind CSS -->
+    <title>App de Asistencia - Clean UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -16,265 +13,189 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
                     },
                     colors: {
-                        'brand-dark': '#0a2a12',
-                        'brand-green': '#124822',
-                        'brand-surface': 'rgba(255, 255, 255, 0.05)',
+                        app: {
+                            bg: '#F2F4F7',       /* Fondo gris súper claro de la ref */
+                            card: '#FFFFFF',     /* Blanco puro para tarjetas */
+                            text: '#1C1E21',     /* Casi negro para títulos */
+                            muted: '#8A92A6',    /* Gris para subtítulos e iconos */
+                            accent: '#00D8A1',   /* El celeste/verde neón de la batería */
+                            nav: '#1A1C20',      /* El botón negro del menú inferior */
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'nav': '0 20px 40px rgba(0,0,0,0.06)',
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            color: #f3f4f6;
-            background-color: #051408;
+        body { background-color: #E5E7EB; /* Fondo oscuro para destacar la app en PC */ }
+        
+        /* Oculta la barra de scroll para un look más "App" */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Animación suave para la imagen central */
+        .float-anim { animation: float 6s ease-in-out infinite; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
-
-        /* --- EFECTO DE FONDO ANIMADO (MESH GRADIENT) --- */
-        .animated-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -2;
-            overflow: hidden;
-            background-color: #071a0b;
-        }
-
-        .animated-bg::before, 
-        .animated-bg::after, 
-        .animated-glow,
-        .animated-glow-warm {
-            content: "";
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px); 
-            opacity: 0.6;
-            animation: moveGradients 20s infinite alternate ease-in-out;
-        }
-
-        .animated-bg::before {
-            width: 60vw;
-            height: 60vw;
-            background: #16522a;
-            top: -20%;
-            left: -10%;
-        }
-
-        .animated-bg::after {
-            width: 70vw;
-            height: 70vw;
-            background: #0d3619;
-            bottom: -20%;
-            right: -20%;
-            animation-delay: -7s;
-            animation-duration: 25s;
-        }
-
-        .animated-glow {
-            width: 40vw;
-            height: 40vw;
-            background: #257a3d;
-            top: 30%;
-            left: 30%;
-            animation-delay: -12s;
-            animation-duration: 30s;
-            opacity: 0.4;
-        }
-
-        .animated-glow-warm {
-            width: 55vw;
-            height: 55vw;
-            background: #1A1800;
-            bottom: 10%;
-            left: 10%;
-            animation-delay: -3s;
-            animation-duration: 28s;
-            opacity: 0.8; 
-            animation-direction: alternate-reverse;
-        }
-
-        @keyframes moveGradients {
-            0%   { transform: translate(0, 0) scale(1); }
-            33%  { transform: translate(10vw, 15vh) scale(1.1); }
-            66%  { transform: translate(-10vw, 5vh) scale(0.9); }
-            100% { transform: translate(15vw, -15vh) scale(1.05); }
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-        ::-webkit-scrollbar-thumb { background: #2e8f49; border-radius: 4px; }
     </style>
 </head>
-<body class="font-sans min-h-screen antialiased flex items-center justify-center py-10">
+<body class="font-sans min-h-screen flex items-center justify-center text-app-text antialiased selection:bg-app-accent selection:text-white sm:p-6">
 
-    <!-- Capa de fondo animado líquido -->
-    <div class="animated-bg">
-        <div class="animated-glow"></div>
-        <div class="animated-glow-warm"></div>
-    </div>
-
-    <!-- Contenedor Principal -->
-    <main class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
+    <!-- CONTENEDOR TIPO APP MÓVIL -->
+    <main class="w-full max-w-[400px] h-[100dvh] sm:h-[850px] bg-app-bg sm:rounded-[40px] relative overflow-hidden shadow-2xl flex flex-col">
         
-        <!-- Columna Izquierda (Imagen clickeable) -->
-        <aside class="lg:col-span-4">
-            <!-- Reemplaza la URL en el atributo src por la ruta de tu imagen -->
-            <a href="#" class="block aspect-square rounded-2xl border border-white/10 overflow-hidden relative shadow-2xl transition-transform duration-300 hover:scale-[1.02] hover:shadow-[#2e8f49]/20 hover:shadow-2xl">
-                <!-- Imagen Placeholder - Cambiar SRC -->
-                <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17887130646511788713064650.jpg" alt="Póster del evento" class="w-full h-full object-cover">
-            </a>
-        </aside>
-
-        <!-- Columna Derecha (Info y Dashboard) -->
-        <section class="lg:col-span-8">
-            <!-- Encabezado del Evento -->
-            <div class="mb-10">
-                </span>
-                <h1 class="font-serif text-5xl font-medium leading-tight mb-6">Forbes Sustainability<br>Summit 2026</h1>
-                
-                <!-- Solo Ubicación (Fecha y hora eliminada) -->
-                <div class="flex gap-4 text-sm">
-                    <i class="fa-solid fa-location-dot mt-1 text-gray-400"></i>
+        <!-- Contenido scrolleable de la app -->
+        <div class="flex-1 overflow-y-auto pb-28">
+            
+            <!-- 1. HEADER (Perfil y Saludo) -->
+            <header class="flex justify-between items-center px-6 pt-12 pb-4">
+                <div class="flex items-center gap-4">
+                    <!-- Foto de perfil -->
+                    <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm">
+                        <img src="https://ui-avatars.com/api/?name=Nilton+Pelaez&background=1C1E21&color=fff" alt="Perfil" class="w-full h-full object-cover">
+                    </div>
                     <div>
-                        <p class="font-medium text-white">InterContinental Real Lima Miraflores by IHG</p>
-                        <p class="text-gray-400">Miraflores, Provincia de Lima</p>
+                        <p class="text-xs font-medium text-app-muted mb-0.5">Buenos días 👋</p>
+                        <h1 class="text-base font-semibold leading-tight">Nilton Peláez</h1>
                     </div>
+                </div>
+                <!-- Campana de notificaciones -->
+                <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-soft text-app-text hover:bg-gray-50 transition-colors">
+                    <i class="fa-regular fa-bell text-lg"></i>
+                </button>
+            </header>
+
+            <!-- 2. HERO IMAGE (Reemplaza el auto de tu referencia) -->
+            <div class="px-6 py-6 flex justify-center items-center">
+                <!-- Aquí puedes poner el logo de Forbes, un ticket 3D o un código QR flotante -->
+                <div class="relative w-full max-w-[240px] aspect-[4/3] flex items-center justify-center float-anim">
+                    <!-- Placeholder visual. Reemplazar src por tu imagen PNG transparente -->
+                    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/ticket-5590729-4652419.png" alt="Evento 3D" class="w-full object-contain drop-shadow-xl">
                 </div>
             </div>
 
-            <!-- DASHBOARD SECTION -->
-            <div class="bg-black/20 border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
-                <h3 class="text-lg font-medium mb-6 border-b border-white/10 pb-3">Dashboard de Asistencia</h3>
+            <!-- 3. DASHBOARD CARDS (Estilo Batería/Distancia) -->
+            <div class="px-6 grid grid-cols-2 gap-4 mb-8">
                 
-                <!-- KPIs / Métricas (Ajustadas a 3 columnas, más grandes) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <!-- Total Registros -->
-                    <div class="bg-white/5 p-6 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                        <p class="text-sm text-gray-400 mb-2">Total Registros</p>
-                        <p class="text-4xl font-bold text-white">142</p>
+                <!-- Card 1: Check-ins (Estilo Batería) -->
+                <div class="bg-white rounded-[28px] p-5 shadow-soft">
+                    <div class="flex justify-between items-center mb-4 text-app-text">
+                        <span class="text-xs font-medium">Check-ins</span>
+                        <i class="fa-solid fa-qrcode text-app-muted"></i>
                     </div>
-                    
-                    <!-- Check-ins Hoy -->
-                    <div class="bg-[#1e6833]/60 p-6 rounded-xl border border-[#2e8f49] shadow-inner relative overflow-hidden">
-                        <!-- Destello decorativo -->
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -mr-6 -mt-6"></div>
-                        <p class="text-sm text-gray-300 mb-2 relative z-10">Check-ins Hoy</p>
-                        <p class="text-4xl font-bold text-white relative z-10">85</p>
-                    </div>
-
-                    <!-- Pendientes (Total - Checkins) -->
-                    <div class="bg-white/5 p-6 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                        <p class="text-sm text-gray-400 mb-2">Pendientes</p>
-                        <!-- La resta de 142 - 85 -->
-                        <p class="text-4xl font-bold text-yellow-500">57</p>
+                    <h2 class="text-4xl font-bold mb-1">85</h2>
+                    <!-- Barra de progreso -->
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="text-[10px] text-app-muted">Progreso</span>
+                        <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-app-accent w-[60%] rounded-full"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Controles de Búsqueda -->
-                <div class="flex justify-between items-center mb-4">
-                    <div class="relative w-72">
-                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="text" id="searchInput" placeholder="Buscar invitado por nombre o estado..." class="w-full bg-black/30 border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#2e8f49] transition-colors">
+                <!-- Card 2: Pendientes (Estilo Distancia) -->
+                <div class="bg-white rounded-[28px] p-5 shadow-soft">
+                    <div class="flex justify-between items-center mb-4 text-app-text">
+                        <span class="text-xs font-medium">Pendientes</span>
+                        <i class="fa-regular fa-clock text-app-muted"></i>
                     </div>
-                    <div class="flex gap-2">
-                                            </button>
-                    </div>
-                </div>
-
-                <!-- Tabla de Invitados -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-xs text-gray-400 uppercase bg-black/30 border-b border-white/10">
-                            <tr>
-                                <th scope="col" class="px-4 py-3 rounded-tl-lg">Invitado</th>
-                                <th scope="col" class="px-4 py-3">Empresa</th>
-                                <th scope="col" class="px-4 py-3">Estado</th>
-                                <th scope="col" class="px-4 py-3 rounded-tr-lg text-right">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="guestTableBody">
-                            <!-- Fila 1 -->
-                            <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-white">Nilton Peláez</div>
-                                    <div class="text-xs text-gray-400">nilton.pelaez@vccevent.com</div>
-                                </td>
-                                <td class="px-4 py-3 text-gray-300">VCC Events</td>
-                                <td class="px-4 py-3">
-                                    <span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-[10px] px-2 py-1 rounded-full">Pendiente</span>
-                                </td>
-                                <td class="px-4 py-3 text-right">
-                                    <button class="bg-[#2e8f49] hover:bg-[#1e6833] text-white px-4 py-1.5 rounded-lg text-xs transition-colors shadow-lg font-medium">
-                                        Check-in
-                                    </button>
-                                </td>
-                            </tr>
-                            <!-- Fila 2 -->
-                            <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-white">María García</div>
-                                    <div class="text-xs text-gray-400">maria.garcia@sustain.pe</div>
-                                </td>
-                                <td class="px-4 py-3 text-gray-300">Sustain PE</td>
-                                <td class="px-4 py-3">
-                                    <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] px-2 py-1 rounded-full">Asistió (14:15)</span>
-                                </td>
-                                <td class="px-4 py-3 text-right">
-                                    <button class="text-gray-400 hover:text-white px-3 py-1.5 text-xs transition-colors">
-                                        Deshacer
-                                    </button>
-                                </td>
-                            </tr>
-                            <!-- Fila 3 -->
-                            <tr class="hover:bg-white/5 transition-colors">
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-white">Carlos Romero</div>
-                                    <div class="text-xs text-gray-400">c.romero@techcorp.com</div>
-                                </td>
-                                <td class="px-4 py-3 text-gray-300">TechCorp</td>
-                                <td class="px-4 py-3">
-                                    <span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-[10px] px-2 py-1 rounded-full">Pendiente</span>
-                                </td>
-                                <td class="px-4 py-3 text-right">
-                                    <button class="bg-[#2e8f49] hover:bg-[#1e6833] text-white px-4 py-1.5 rounded-lg text-xs transition-colors shadow-lg font-medium">
-                                        Check-in
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <h2 class="text-4xl font-bold mb-1">57</h2>
+                    <p class="text-[10px] text-app-muted mt-2">Faltan por llegar</p>
                 </div>
             </div>
-        </section>
+
+            <!-- 4. LISTA DE INVITADOS (Adaptada al nuevo estilo UI) -->
+            <div class="px-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-lg">Lista de Invitados</h3>
+                    <span class="text-xs font-medium text-app-muted bg-white px-3 py-1 rounded-full shadow-sm">142 Total</span>
+                </div>
+
+                <!-- Buscador Clean -->
+                <div class="relative mb-6">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-app-muted text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar por nombre..." class="w-full bg-white rounded-2xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-app-accent shadow-soft transition-all placeholder:text-gray-400">
+                </div>
+
+                <!-- Items de la lista -->
+                <div class="space-y-3" id="guestList">
+                    <!-- Invitado 1 -->
+                    <div class="bg-white p-3 rounded-2xl flex items-center justify-between shadow-soft guest-item">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-app-accent/10 flex items-center justify-center text-app-accent font-bold text-sm">
+                                CR
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-app-text">Carlos Romero</p>
+                                <p class="text-[10px] text-app-muted">TechCorp • Pendiente</p>
+                            </div>
+                        </div>
+                        <!-- Botón de acción minimalista -->
+                        <button class="w-8 h-8 rounded-full bg-app-bg text-app-text flex items-center justify-center hover:bg-app-accent hover:text-white transition-colors">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Invitado 2 (Ya asistió) -->
+                    <div class="bg-white p-3 rounded-2xl flex items-center justify-between shadow-soft guest-item opacity-60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-sm">
+                                MG
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-app-text line-through">María García</p>
+                                <p class="text-[10px] text-app-muted">Sustain PE • Asistió</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-check-circle text-app-accent"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. BOTTOM NAVIGATION BAR (Exactamente igual a la referencia) -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] bg-white rounded-[2rem] p-2 flex justify-between items-center shadow-nav z-50">
+            <!-- Botón Activo (Negro con ícono verde) -->
+            <button class="w-[72px] h-[60px] bg-app-nav rounded-[1.5rem] flex items-center justify-center">
+                <i class="fa-solid fa-house text-app-accent text-xl"></i>
+            </button>
+            
+            <!-- Botones inactivos (Íconos de línea negros/grises) -->
+            <button class="flex-1 h-[60px] flex items-center justify-center text-app-text hover:text-app-accent transition-colors">
+                <i class="fa-solid fa-expand text-xl"></i> <!-- Escanear -->
+            </button>
+            
+            <button class="flex-1 h-[60px] flex items-center justify-center text-app-text hover:text-app-accent transition-colors">
+                <i class="fa-regular fa-address-book text-xl"></i> <!-- Lista completa -->
+            </button>
+            
+            <button class="flex-1 h-[60px] flex items-center justify-center text-app-text hover:text-app-accent transition-colors">
+                <i class="fa-solid fa-gear text-xl"></i> <!-- Ajustes -->
+            </button>
+        </div>
+
     </main>
 
-    <!-- SCRIPT PARA EL BUSCADOR EN TIEMPO REAL -->
+    <!-- Script de búsqueda simple adaptado -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const searchInput = document.getElementById("searchInput");
-            const tableBody = document.getElementById("guestTableBody");
-            const rows = tableBody.getElementsByTagName("tr");
+            const items = document.getElementsByClassName("guest-item");
 
             searchInput.addEventListener("keyup", function(event) {
-                // Convertimos a minúsculas y eliminamos tildes para facilitar la búsqueda
                 const query = event.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-                for (let i = 0; i < rows.length; i++) {
-                    // Extraemos todo el texto de la fila actual
-                    const rowText = rows[i].textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    
-                    if (rowText.includes(query)) {
-                        rows[i].style.display = "";
-                    } else {
-                        rows[i].style.display = "none";
-                    }
+                for (let i = 0; i < items.length; i++) {
+                    const text = items[i].textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    items[i].style.display = text.includes(query) ? "flex" : "none";
                 }
             });
         });
