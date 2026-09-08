@@ -54,8 +54,9 @@
             <!-- HEADER -->
             <header class="flex justify-between items-center px-6 pt-10 pb-2">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm">
-                        <img src="https://ui-avatars.com/api/?name=Nilton+Pelaez&background=1C1E21&color=fff" alt="Perfil" class="w-full h-full object-cover">
+                    <!-- LOGO ANTERIOR COMO AVATAR REDONDEADO -->
+                    <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-white border border-gray-100 flex items-center justify-center p-1.5">
+                        <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888337100881788833710088.png" alt="Logo Cliente" class="w-full h-full object-contain">
                     </div>
                     <div>
                         <p class="text-xs font-medium text-app-muted mb-0.5">Buenos días 👋</p>
@@ -64,9 +65,9 @@
                 </div>
             </header>
 
-            <!-- LOGO CLIENTE (Reemplaza el icono animado 3D) -->
+            <!-- NUEVO LOGO PRINCIPAL (Doble tamaño) -->
             <div class="px-6 py-6 flex justify-center items-center">
-                <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888337100881788833710088.png" alt="Logo Cliente" class="max-h-[70px] object-contain drop-shadow-sm">
+                <img src="https://incontactostorageprod.blob.core.windows.net/subirm/17888342198721788834219871.jpg" alt="Logo Principal Evento" class="w-full max-h-[150px] object-cover rounded-2xl shadow-soft">
             </div>
 
             <!-- ========================================== -->
@@ -178,18 +179,14 @@
     <script>
         // 1. SISTEMA DE PESTAÑAS (TABS)
         function switchTab(viewName, buttonElement) {
-            // Ocultar todas las vistas
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            // Mostrar la vista seleccionada
             document.getElementById('view-' + viewName).classList.remove('hidden');
 
-            // Resetear estilos de todos los botones
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-app-nav', 'text-app-accent');
                 btn.classList.add('text-app-muted');
             });
 
-            // Aplicar estilo activo (fondo negro, icono acento) al botón clicado
             buttonElement.classList.remove('text-app-muted', 'hover:text-app-text');
             buttonElement.classList.add('bg-app-nav', 'text-app-accent');
         }
@@ -198,17 +195,14 @@
         let attendanceChart;
         function renderizarGrafico() {
             const ctx = document.getElementById('attendanceChart').getContext('2d');
-            
-            // Si el gráfico ya existe, lo destruimos para actualizarlo
             if(attendanceChart) attendanceChart.destroy();
 
             attendanceChart = new Chart(ctx, {
-                type: 'bar', // Tipo de gráfico de picos
+                type: 'bar', 
                 data: {
                     labels: ['13:00', '14:00', '15:00', '16:00', '17:00'],
                     datasets: [{
                         label: 'Registros',
-                        // Estos datos pueden ser dinámicos desde tu API luego
                         data: [12, 45, 18, 5, 5], 
                         backgroundColor: '#00D8A1',
                         borderRadius: 6,
@@ -227,12 +221,11 @@
             });
         }
 
-        // 3. INTEGRACIÓN CON API (Simulada para Vercel)
+        // 3. INTEGRACIÓN CON API
         document.addEventListener("DOMContentLoaded", function() {
             const searchInput = document.getElementById("searchInput");
             const guestList = document.getElementById("guestList");
             
-            // Inicializar gráfico vacío o con datos base
             renderizarGrafico();
 
             function renderizarDashboard(invitados) {
@@ -241,25 +234,19 @@
                 const pendientes = total - checkins;
                 const porcentaje = total > 0 ? (checkins / total) * 100 : 0;
 
-                // Actualizar métricas Home
                 document.getElementById('metric-total').innerText = total;
                 document.getElementById('metric-checkins').innerText = checkins;
                 document.getElementById('metric-pendientes').innerText = pendientes;
                 document.getElementById('progress-bar').style.width = `${porcentaje}%`;
                 
-                // Actualizar número en pestaña lista
                 document.getElementById('badge-total').innerText = `${total} Total`;
 
-                // Construir lista de invitados
                 let htmlLista = '';
                 invitados.forEach(inv => {
                     const esAsistio = inv.estado.toLowerCase().includes('asisti');
-                    
-                    // Iniciales (ej: Carlos Romero -> CR)
                     const iniciales = inv.nombre.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
 
                     if(esAsistio) {
-                        // Estilo Asistió (Gris claro, tachado, check verde)
                         htmlLista += `
                         <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item opacity-70">
                             <div class="flex items-center gap-4">
@@ -276,7 +263,6 @@
                             </div>
                         </div>`;
                     } else {
-                        // Estilo Pendiente (Activo, flecha)
                         htmlLista += `
                         <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item cursor-pointer hover:bg-gray-50 transition-colors">
                             <div class="flex items-center gap-4">
@@ -298,7 +284,7 @@
                 guestList.innerHTML = htmlLista;
             }
 
-            // 4. LÓGICA DE BÚSQUEDA EN LISTA
+            // 4. BÚSQUEDA EN LISTA
             searchInput.addEventListener("keyup", function(event) {
                 const query = event.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 const items = document.getElementsByClassName("guest-item");
@@ -309,11 +295,9 @@
                 }
             });
 
-            // 5. FUNCIÓN FETCH PARA VERCEL/API
+            // 5. OBTENER DATOS (Mock API)
             async function obtenerDatos() {
                 try {
-                    // MOCK DE DATOS (Para que veas el diseño funcionando antes de conectarlo a tu backend)
-                    // En producción, reemplaza la siguiente línea por: const respuesta = await fetch('/api/invitados'); const data = await respuesta.json();
                     const data = [
                         { nombre: "Carlos Romero", empresa: "TechCorp", estado: "Pendiente" },
                         { nombre: "María García", empresa: "Sustain PE", estado: "Asistió" },
@@ -322,15 +306,13 @@
                     ];
                     
                     renderizarDashboard(data);
-                    searchInput.dispatchEvent(new Event('keyup')); // Refrescar filtro
+                    searchInput.dispatchEvent(new Event('keyup')); 
                 } catch (error) {
                     console.error("Error cargando datos:", error);
                 }
             }
 
-            // Iniciar consumo
             obtenerDatos();
-            // setInterval(obtenerDatos, 5000); // Descomentar en producción para refresco cada 5s
         });
     </script>
 </body>
