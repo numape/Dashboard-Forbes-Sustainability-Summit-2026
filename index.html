@@ -9,8 +9,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -24,7 +24,14 @@
             }
         }
     </script>
-    <style> body { background-color: #E5E7EB; } ::-webkit-scrollbar { display: none; } </style>
+    <style>
+        body { background-color: #E5E7EB; }
+        ::-webkit-scrollbar { display: none; }
+        .nav-btn:focus-visible, .seg-btn:focus-visible, #day-select:focus-visible { outline: 2px solid #00D8A1; outline-offset: 2px; }
+        .seg-btn[aria-pressed="true"] { background: #1A1C20; color: #00D8A1; }
+        .seg-btn[aria-pressed="false"] { color: #8A92A6; }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
 </head>
 <body class="font-sans min-h-screen flex items-center justify-center text-app-text antialiased selection:bg-app-accent selection:text-white sm:p-6">
 
@@ -38,8 +45,7 @@
                     </div>
                     <div>
                         <p class="text-xs font-medium text-app-muted mb-0.5">Registro y Acreditación</p>
-                        <h1 class="text-base font-semibold leading-tight">Forbes Tech Summit 2026
-</h1>
+                        <h1 class="text-base font-semibold leading-tight">Forbes Tech Summit 2026</h1>
                     </div>
                 </div>
             </header>
@@ -98,13 +104,63 @@
                 <div class="space-y-3" id="guestList"></div>
             </div>
 
-            <!-- VISTA 3: GRÁFICO DINÁMICO -->
+            <!-- VISTA 3: PICOS DE ASISTENCIA -->
             <div id="view-chart" class="px-6 hidden view-section">
                 <h3 class="font-semibold text-xl mb-4">Picos de Asistencia</h3>
+
+                <!-- Controles -->
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <div id="day-wrap" class="hidden">
+                        <label for="day-select" class="sr-only">Día</label>
+                        <select id="day-select" class="bg-white text-xs font-semibold rounded-full pl-3 pr-7 py-2 shadow-soft border border-gray-100 text-app-text"></select>
+                    </div>
+                    <div id="step-group" class="ml-auto inline-flex bg-white rounded-full p-1 shadow-soft" role="group" aria-label="Intervalo">
+                        <button class="seg-btn text-xs font-semibold px-3 py-1.5 rounded-full transition-colors" data-step="60" aria-pressed="true">1 h</button>
+                        <button class="seg-btn text-xs font-semibold px-3 py-1.5 rounded-full transition-colors" data-step="30" aria-pressed="false">30 min</button>
+                        <button class="seg-btn text-xs font-semibold px-3 py-1.5 rounded-full transition-colors" data-step="15" aria-pressed="false">15 min</button>
+                    </div>
+                </div>
+
+                <!-- Pico -->
+                <div class="relative overflow-hidden rounded-[28px] p-5 mb-4 text-white shadow-soft" style="background:#1A1C20">
+                    <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full" style="background:#00D8A1;opacity:.18"></div>
+                    <div class="relative flex items-end justify-between">
+                        <div>
+                            <p class="text-xs font-medium text-white/70">Momento de mayor afluencia</p>
+                            <p id="peak-range" class="text-2xl font-bold mt-1">—</p>
+                            <p id="peak-sub" class="text-xs text-white/70 mt-1">Sin check-ins todavía</p>
+                        </div>
+                        <div class="text-right">
+                            <p id="peak-count" class="text-4xl font-bold leading-none text-app-accent">0</p>
+                            <p class="text-[11px] text-white/70 mt-1">check-ins</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico -->
                 <div class="bg-white rounded-[28px] p-5 shadow-soft">
-                    <p class="text-xs font-medium text-app-muted mb-4">Check-ins por hora</p>
-                    <div class="relative h-[250px] w-full">
-                        <canvas id="attendanceChart"></canvas>
+                    <p class="text-xs font-medium text-app-muted mb-4">Check-ins por intervalo</p>
+                    <div id="chart-empty" class="hidden py-14 text-center">
+                        <div class="w-12 h-12 mx-auto rounded-full bg-app-accent/10 text-app-accent flex items-center justify-center mb-3"><i class="fa-solid fa-chart-simple"></i></div>
+                        <p class="text-sm font-semibold">Aún no hay check-ins</p>
+                        <p class="text-xs text-app-muted mt-1">Cuando llegue el primer asistente, verás aquí la curva de llegada.</p>
+                    </div>
+                    <div id="chart-scroll" class="overflow-x-auto">
+                        <div id="chart-inner" class="relative h-[250px] w-full">
+                            <canvas id="attendanceChart" role="img" aria-label="Gráfico de check-ins por intervalo de tiempo"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primer / último -->
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="bg-white rounded-[24px] p-4 shadow-soft">
+                        <p class="text-[11px] text-app-muted">Primer check-in</p>
+                        <p id="stat-first" class="text-lg font-bold mt-1">—</p>
+                    </div>
+                    <div class="bg-white rounded-[24px] p-4 shadow-soft">
+                        <p class="text-[11px] text-app-muted">Último check-in</p>
+                        <p id="stat-last" class="text-lg font-bold mt-1">—</p>
                     </div>
                 </div>
             </div>
@@ -116,170 +172,335 @@
 
         <!-- NAV BAR -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] bg-white rounded-[2rem] p-2 flex justify-between items-center shadow-nav z-50">
-            <button onclick="switchTab('home', this)" class="nav-btn w-[32%] h-[60px] bg-app-nav rounded-[1.5rem] flex items-center justify-center text-app-accent transition-all duration-300"><i class="fa-solid fa-house text-xl"></i></button>
-            <button onclick="switchTab('list', this)" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300"><i class="fa-regular fa-address-book text-xl"></i></button>
-            <button onclick="switchTab('chart', this)" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300"><i class="fa-solid fa-chart-simple text-xl"></i></button>
+            <button onclick="switchTab('home', this)" aria-label="Resumen" class="nav-btn w-[32%] h-[60px] bg-app-nav rounded-[1.5rem] flex items-center justify-center text-app-accent transition-all duration-300"><i class="fa-solid fa-house text-xl"></i></button>
+            <button onclick="switchTab('list', this)" aria-label="Lista de invitados" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300"><i class="fa-regular fa-address-book text-xl"></i></button>
+            <button onclick="switchTab('chart', this)" aria-label="Picos de asistencia" class="nav-btn w-[32%] h-[60px] rounded-[1.5rem] flex items-center justify-center text-app-muted hover:text-app-text transition-all duration-300"><i class="fa-solid fa-chart-simple text-xl"></i></button>
         </div>
     </main>
 
     <script>
+    (function () {
+        'use strict';
+
+        /* ---------- CONFIG ---------- */
+        const API_URL = '/api/invitados';
+        const POLL_MS = 5000;
+        const TZ = 'America/Lima';                 // zona horaria del evento
+        const ACCENT = '#00D8A1', ACCENT_SOFT = '#A6F1DE', INK = '#1C1E21', MUTED = '#8A92A6';
+        const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const state = { guests: [], tab: 'home', step: 60, day: null, chart: null, loading: false };
+        const $ = id => document.getElementById(id);
+        const pad = n => String(n).padStart(2, '0');
+        const hhmm = min => `${pad(Math.floor(min / 60) % 24)}:${pad(min % 60)}`;
+        const normTxt = s => String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        /* ---------- FECHAS ---------- */
+        const wallFmt = new Intl.DateTimeFormat('en-CA', {
+            timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+        });
+        function wallFromDate(d) {
+            const p = {};
+            wallFmt.formatToParts(d).forEach(x => { p[x.type] = x.value; });
+            return { day: `${p.year}-${p.month}-${p.day}`, min: (+p.hour) * 60 + (+p.minute) };
+        }
+        // Devuelve { day: 'YYYY-MM-DD', min: minutos desde 00:00 } en hora del evento
+        function parseCheckin(v) {
+            if (v == null || v === '') return null;
+            if (typeof v === 'number') return wallFromDate(new Date(v));
+            const s = String(v).trim();
+            // ISO sin zona: ya es hora local del evento
+            let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/);
+            if (m) return { day: `${m[1]}-${m[2]}-${m[3]}`, min: +m[4] * 60 + +m[5] };
+            // dd/mm/yyyy hh:mm[:ss] [a. m.|p. m.]
+            m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[ ,T]+(\d{1,2}):(\d{2})(?::\d{2})?\s*([ap])?\.?\s*m?\.?/i);
+            if (m) {
+                let h = +m[4]; const ap = m[6] && m[6].toLowerCase();
+                if (ap === 'p' && h < 12) h += 12;
+                if (ap === 'a' && h === 12) h = 0;
+                return { day: `${m[3]}-${pad(m[2])}-${pad(m[1])}`, min: h * 60 + +m[5] };
+            }
+            // ISO con zona (Z / +hh:mm) u otros formatos: convertir a hora del evento
+            const d = new Date(s);
+            return isNaN(d) ? null : wallFromDate(d);
+        }
+        const dayLabel = day => new Date(day + 'T12:00:00')
+            .toLocaleDateString('es-PE', { weekday: 'short', day: '2-digit', month: 'short' });
+
+        /* ---------- DATOS ---------- */
+        const asistio = g => {
+            const e = String((g && g.estado) || '').toLowerCase();
+            return e.includes('asisti') && !e.includes('no asisti');
+        };
+
+        function animateValue(el, end) {
+            const start = parseInt(el.dataset.v || el.textContent) || 0;
+            el.dataset.v = end;
+            if (start === end) { el.textContent = end; return; }
+            if (REDUCED) { el.textContent = end; return; }
+            let t0 = null;
+            const step = ts => {
+                if (!t0) t0 = ts;
+                const p = Math.min((ts - t0) / 800, 1);
+                el.textContent = p < 1 ? Math.floor(p * (2 - p) * (end - start) + start) : end;
+                if (p < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+        }
+
+        /* ---------- HOME ---------- */
+        function renderHome() {
+            const total = state.guests.length;
+            const checkins = state.guests.filter(asistio).length;
+            animateValue($('metric-total'), total);
+            animateValue($('metric-checkins'), checkins);
+            animateValue($('metric-pendientes'), total - checkins);
+            $('progress-bar').style.width = (total ? checkins / total * 100 : 0) + '%';
+        }
+
+        /* ---------- LISTA ---------- */
+        function aplicarFiltro() {
+            const q = normTxt($('searchInput').value);
+            document.querySelectorAll('.guest-item').forEach(el => {
+                el.style.display = normTxt(el.textContent).includes(q) ? 'flex' : 'none';
+            });
+        }
+
+        function renderList() {
+            $('badge-total').textContent = `${state.guests.length} Total`;
+            const html = state.guests.map(inv => {
+                const nombreCompleto = `${inv.nombre || ''} ${inv.apellido || ''}`.trim() || 'Desconocido';
+                const iniciales = ((inv.nombre?.[0] || '') + (inv.apellido?.[0] || '')).toUpperCase() || 'NA';
+                const empresa = esc(inv.empresa || '-');
+                if (asistio(inv)) {
+                    return `
+                    <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item opacity-70">
+                        <div class="flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-sm">${esc(iniciales)}</div>
+                            <div>
+                                <p class="text-[15px] font-semibold text-app-text line-through">${esc(nombreCompleto)}</p>
+                                <p class="text-xs text-app-muted mt-0.5">${empresa} • Asistió</p>
+                            </div>
+                        </div>
+                        <div class="w-7 h-7 rounded-full bg-app-accent flex items-center justify-center text-white"><i class="fa-solid fa-check text-[10px]"></i></div>
+                    </div>`;
+                }
+                return `
+                    <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-full bg-app-accent/10 flex items-center justify-center text-app-accent font-bold text-sm">${esc(iniciales)}</div>
+                            <div>
+                                <p class="text-[15px] font-semibold text-app-text">${esc(nombreCompleto)}</p>
+                                <p class="text-xs text-app-muted mt-0.5">${empresa} • Pendiente</p>
+                            </div>
+                        </div>
+                        <span class="w-8 h-8 rounded-full bg-app-bg text-app-text flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></span>
+                    </div>`;
+            }).join('');
+
+            const el = $('guestList');
+            if (el.dataset.sig !== html) {          // solo redibuja si algo cambió
+                el.innerHTML = html;
+                el.dataset.sig = html;
+                aplicarFiltro();
+            }
+        }
+
+        /* ---------- PICOS DE ASISTENCIA ---------- */
+        function checkinsByDay() {
+            const byDay = {};
+            state.guests.filter(asistio).forEach(g => {
+                const t = parseCheckin(g.timestamp);
+                if (t) (byDay[t.day] = byDay[t.day] || []).push(t.min);
+            });
+            return byDay;
+        }
+
+        // Intervalos continuos (rellena huecos con 0 para que la curva sea real)
+        function buildBuckets(mins, step) {
+            const counts = {};
+            mins.forEach(m => { const b = Math.floor(m / step) * step; counts[b] = (counts[b] || 0) + 1; });
+            const keys = Object.keys(counts).map(Number);
+            const first = Math.min(...keys), last = Math.max(...keys);
+            const labels = [], data = [], starts = [];
+            for (let b = first; b <= last; b += step) {
+                starts.push(b); labels.push(hhmm(b)); data.push(counts[b] || 0);
+            }
+            return { labels, data, starts };
+        }
+
+        const valueLabels = {
+            id: 'valueLabels',
+            afterDatasetsDraw(chart) {
+                const { ctx } = chart, meta = chart.getDatasetMeta(0), peak = chart.$peak;
+                ctx.save();
+                ctx.font = '700 10px "Plus Jakarta Sans", sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+                meta.data.forEach((bar, i) => {
+                    const v = chart.data.datasets[0].data[i];
+                    if (!v) return;
+                    ctx.fillStyle = i === peak ? INK : MUTED;
+                    ctx.fillText(v, bar.x, bar.y - 4);
+                });
+                ctx.restore();
+            }
+        };
+
+        function ensureChart() {
+            if (state.chart) return state.chart;
+            state.chart = new Chart($('attendanceChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Check-ins', data: [], backgroundColor: [], borderRadius: 8, borderSkipped: false, maxBarThickness: 26, categoryPercentage: 0.85, barPercentage: 0.9 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: REDUCED ? false : { duration: 400 },
+                    layout: { padding: { top: 16 } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: INK, padding: 10, cornerRadius: 10, displayColors: false,
+                            titleFont: { family: 'Plus Jakarta Sans', weight: '700' },
+                            bodyFont: { family: 'Plus Jakarta Sans' },
+                            callbacks: {
+                                title: items => {
+                                    const s = state.chart.$starts[items[0].dataIndex];
+                                    return `${hhmm(s)} – ${hhmm(s + state.step)}`;
+                                },
+                                label: item => {
+                                    const total = item.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = total ? Math.round(item.raw / total * 100) : 0;
+                                    return `${item.raw} check-in${item.raw === 1 ? '' : 's'} · ${pct}% del día`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grace: '12%', border: { display: false }, grid: { color: '#EEF0F3' },
+                             ticks: { precision: 0, color: MUTED, font: { size: 10, family: 'Plus Jakarta Sans' } } },
+                        x: { border: { display: false }, grid: { display: false },
+                             ticks: { color: MUTED, maxRotation: 0, autoSkip: true, font: { size: 10, family: 'Plus Jakarta Sans' } } }
+                    }
+                },
+                plugins: [valueLabels]
+            });
+            return state.chart;
+        }
+
+        function renderPicos() {
+            const byDay = checkinsByDay();
+            const days = Object.keys(byDay).sort();
+
+            // Selector de día (solo si hay más de uno)
+            if (!days.includes(state.day)) state.day = days[days.length - 1] || null;
+            $('day-wrap').classList.toggle('hidden', days.length < 2);
+            const sel = $('day-select');
+            const sig = days.join('|');
+            if (sel.dataset.sig !== sig) {
+                sel.innerHTML = days.map(d => `<option value="${d}">${dayLabel(d)}</option>`).join('');
+                sel.dataset.sig = sig;
+            }
+            sel.value = state.day || '';
+
+            const mins = state.day ? byDay[state.day] : [];
+            const empty = mins.length === 0;
+            $('chart-empty').classList.toggle('hidden', !empty);
+            $('chart-scroll').classList.toggle('hidden', empty);
+
+            if (empty) {
+                $('peak-range').textContent = '—';
+                $('peak-sub').textContent = 'Sin check-ins todavía';
+                $('peak-count').textContent = '0';
+                $('stat-first').textContent = '—';
+                $('stat-last').textContent = '—';
+                return;
+            }
+
+            const { labels, data, starts } = buildBuckets(mins, state.step);
+            const total = mins.length;
+            const max = Math.max(...data);
+            const peakIdx = data.indexOf(max);                // en empate, el primero
+            const pStart = starts[peakIdx];
+
+            $('peak-range').textContent = `${hhmm(pStart)} – ${hhmm(pStart + state.step)}`;
+            $('peak-count').textContent = max;
+            $('peak-sub').textContent = `${Math.round(max / total * 100)}% de los ${total} check-ins del día`;
+            $('stat-first').textContent = hhmm(Math.min(...mins));
+            $('stat-last').textContent = hhmm(Math.max(...mins));
+
+            // Ancho dinámico: con muchos intervalos el gráfico se desplaza horizontalmente
+            const inner = $('chart-inner');
+            inner.style.width = labels.length * 34 > inner.parentElement.clientWidth ? `${labels.length * 34}px` : '100%';
+
+            const chart = ensureChart();
+            const ds = chart.data.datasets[0];
+            chart.data.labels = labels;
+            ds.data = data;
+            ds.backgroundColor = data.map((_, i) => i === peakIdx ? ACCENT : ACCENT_SOFT);
+            chart.$peak = peakIdx;
+            chart.$starts = starts;
+            chart.resize();
+            chart.update();
+        }
+
+        /* ---------- NAVEGACIÓN ---------- */
         function switchTab(viewName, buttonElement) {
+            state.tab = viewName;
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            document.getElementById('view-' + viewName).classList.remove('hidden');
+            $('view-' + viewName).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-app-nav', 'text-app-accent');
                 btn.classList.add('text-app-muted');
             });
             buttonElement.classList.remove('text-app-muted', 'hover:text-app-text');
             buttonElement.classList.add('bg-app-nav', 'text-app-accent');
+            if (viewName === 'chart') renderPicos();   // el canvas ya es visible: tamaño correcto
+        }
+        window.switchTab = switchTab;
+
+        function render() {
+            renderHome();
+            renderList();
+            if (state.tab === 'chart') renderPicos();
         }
 
-        // GRÁFICO DINÁMICO
-        let attendanceChart;
-        function inicializarGrafico() {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            attendanceChart = new Chart(ctx, {
-                type: 'bar', 
-                data: { labels: [], datasets: [{ label: 'Registros', data: [], backgroundColor: '#00D8A1', borderRadius: 6, barThickness: 12 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { display: false, drawBorder: false }, ticks: { display: false, stepSize: 1 } },
-                        x: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 10, family: 'Plus Jakarta Sans' }, color: '#8A92A6' } }
-                    }
-                }
-            });
-        }
-
-        function actualizarGrafico(labels, data) {
-            if(attendanceChart) {
-                attendanceChart.data.labels = labels;
-                attendanceChart.data.datasets[0].data = data;
-                attendanceChart.update();
+        /* ---------- CARGA DE DATOS ---------- */
+        async function obtenerDatos() {
+            if (state.loading || document.hidden) return;
+            state.loading = true;
+            try {
+                const res = await fetch(API_URL, { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const json = await res.json();
+                const list = Array.isArray(json) ? json : (Array.isArray(json.data) ? json.data : null);
+                if (!list) throw new Error(json && json.error ? json.error : 'Formato inesperado');
+                state.guests = list.filter(g => g && typeof g === 'object');
+                render();
+            } catch (err) {
+                console.error('Error cargando datos:', err);   // se conservan los últimos datos mostrados
+            } finally {
+                state.loading = false;
             }
         }
 
-        // ANIMACIÓN DE CONTADORES
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                // Efecto de suavizado al terminar (ease-out)
-                const easeProgress = progress * (2 - progress);
-                obj.innerHTML = Math.floor(easeProgress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                } else {
-                    obj.innerHTML = end; 
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
+        /* ---------- EVENTOS ---------- */
+        $('searchInput').addEventListener('input', aplicarFiltro);
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const searchInput = document.getElementById("searchInput");
-            const guestList = document.getElementById("guestList");
-            
-            inicializarGrafico();
+        document.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => {
+            state.step = +b.dataset.step;
+            document.querySelectorAll('.seg-btn').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+            renderPicos();
+        }));
 
-            function renderizarDashboard(invitados) {
-                const total = invitados.length;
-                const checkins = invitados.filter(i => i.estado && i.estado.toLowerCase().includes('asisti')).length;
-                const pendientes = total - checkins;
-                const porcentaje = total > 0 ? (checkins / total) * 100 : 0;
+        $('day-select').addEventListener('change', e => { state.day = e.target.value; renderPicos(); });
 
-                // Actualización animada de las métricas numéricas
-                const elTotal = document.getElementById('metric-total');
-                const valTotal = parseInt(elTotal.innerText) || 0;
-                if(valTotal !== total) animateValue(elTotal, valTotal, total, 800);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) obtenerDatos(); });
+        window.addEventListener('resize', () => { if (state.tab === 'chart') renderPicos(); });
 
-                const elCheckins = document.getElementById('metric-checkins');
-                const valCheckins = parseInt(elCheckins.innerText) || 0;
-                if(valCheckins !== checkins) animateValue(elCheckins, valCheckins, checkins, 800);
-
-                const elPendientes = document.getElementById('metric-pendientes');
-                const valPendientes = parseInt(elPendientes.innerText) || 0;
-                if(valPendientes !== pendientes) animateValue(elPendientes, valPendientes, pendientes, 800);
-
-                document.getElementById('progress-bar').style.width = `${porcentaje}%`;
-                document.getElementById('badge-total').innerText = `${total} Total`;
-
-                let htmlLista = '';
-                const picosPorHora = {}; 
-
-                invitados.forEach(inv => {
-                    const estadoStr = inv.estado || '';
-                    const esAsistio = estadoStr.toLowerCase().includes('asisti');
-                    const nombreCompleto = `${inv.nombre || ''} ${inv.apellido || ''}`.trim() || 'Desconocido';
-                    let iniciales = ((inv.nombre?.[0] || '') + (inv.apellido?.[0] || '')).toUpperCase() || 'NA';
-
-                    if(esAsistio) {
-                        if(inv.timestamp) {
-                            const fechaObj = new Date(inv.timestamp);
-                            if(!isNaN(fechaObj)) {
-                                const hora = fechaObj.getHours().toString().padStart(2, '0');
-                                const etiquetaHora = `${hora}:00`;
-                                picosPorHora[etiquetaHora] = (picosPorHora[etiquetaHora] || 0) + 1;
-                            }
-                        }
-
-                        htmlLista += `
-                        <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item opacity-70">
-                            <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-sm">${iniciales}</div>
-                                <div>
-                                    <p class="text-[15px] font-semibold text-app-text line-through">${nombreCompleto}</p>
-                                    <p class="text-xs text-app-muted mt-0.5">${inv.empresa || '-'} • Asistió</p>
-                                </div>
-                            </div>
-                            <div class="w-7 h-7 rounded-full bg-app-accent flex items-center justify-center text-white"><i class="fa-solid fa-check text-[10px]"></i></div>
-                        </div>`;
-                    } else {
-                        htmlLista += `
-                        <div class="bg-white p-4 rounded-2xl flex items-center justify-between shadow-soft guest-item cursor-pointer hover:bg-gray-50 transition-colors">
-                            <div class="flex items-center gap-4">
-                                <div class="w-11 h-11 rounded-full bg-app-accent/10 flex items-center justify-center text-app-accent font-bold text-sm">${iniciales}</div>
-                                <div>
-                                    <p class="text-[15px] font-semibold text-app-text">${nombreCompleto}</p>
-                                    <p class="text-xs text-app-muted mt-0.5">${inv.empresa || '-'} • Pendiente</p>
-                                </div>
-                            </div>
-                            <button class="w-8 h-8 rounded-full bg-app-bg text-app-text flex items-center justify-center hover:bg-app-accent hover:text-white transition-colors"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-                        </div>`;
-                    }
-                });
-
-                guestList.innerHTML = htmlLista;
-
-                const labelsOrdenados = Object.keys(picosPorHora).sort();
-                const datosOrdenados = labelsOrdenados.map(hora => picosPorHora[hora]);
-                actualizarGrafico(labelsOrdenados, datosOrdenados);
-            }
-
-            searchInput.addEventListener("keyup", function(event) {
-                const query = event.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const items = document.getElementsByClassName("guest-item");
-                for (let i = 0; i < items.length; i++) {
-                    const text = items[i].textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    items[i].style.display = text.includes(query) ? "flex" : "none";
-                }
-            });
-
-            async function obtenerDatos() {
-                try {
-                    const respuesta = await fetch('/api/invitados');
-                    const data = await respuesta.json();
-                    renderizarDashboard(data);
-                    searchInput.dispatchEvent(new Event('keyup')); 
-                } catch (error) {
-                    console.error("Error cargando datos:", error);
-                }
-            }
-
-            obtenerDatos();
-            setInterval(obtenerDatos, 5000); 
-        });
+        obtenerDatos();
+        setInterval(obtenerDatos, POLL_MS);
+    })();
     </script>
 </body>
 </html>
